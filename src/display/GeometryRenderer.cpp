@@ -28,22 +28,22 @@ GeometryRenderer::GeometryRenderer(Document* document) : document(document)
 }
 
 void GeometryRenderer::render() {
-    document->getDisplay()->getDisplayManager()->saveState();
-    if (!objectsToBeDisplayedIds.empty()) {
-        for (int objectId : objectsToBeDisplayedIds) {
-            if (!objectIdDisplayListIdMap.contains(objectId)) {
+    document->getADisplay()->getADisplayManager()->saveState();
+    if (!objectsToBeADisplayedIds.empty()) {
+        for (int objectId : objectsToBeADisplayedIds) {
+            if (!objectIdADisplayListIdMap.contains(objectId)) {
                 drawSolid(objectId);
             }
-            visibleDisplayListIds.append(objectIdDisplayListIdMap[objectId]);
+            visibleADisplayListIds.append(objectIdADisplayListIdMap[objectId]);
         }
-        objectsToBeDisplayedIds.clear();
+        objectsToBeADisplayedIds.clear();
     }
 
-    for (int displayListId : visibleDisplayListIds) {
-        document->getDisplay()->getDisplayManager()->drawDList(displayListId);
+    for (int displayListId : visibleADisplayListIds) {
+        document->getADisplay()->getADisplayManager()->drawDList(displayListId);
     }
-    document->getDisplay()->getDisplayManager()->drawSuffix();
-    document->getDisplay()->getDisplayManager()->restoreState();
+    document->getADisplay()->getADisplayManager()->drawSuffix();
+    document->getADisplay()->getADisplayManager()->restoreState();
 }
 
 
@@ -55,42 +55,42 @@ void GeometryRenderer::drawSolid(int objectId) {
 
     clearSolidIfAvailable(objectId);
 
-    const unsigned int displayListId = document->getDisplay()->getDisplayManager()->genDLists(1);
-    document->getDisplay()->getDisplayManager()->beginDList(displayListId);  // begin display list --------------
+    const unsigned int displayListId = document->getADisplay()->getADisplayManager()->genDLists(1);
+    document->getADisplay()->getADisplayManager()->beginDList(displayListId);  // begin display list --------------
 
     if (colorInfo.hasColor) {
-        document->getDisplay()->getDisplayManager()->setFGColor(colorInfo.red, colorInfo.green, colorInfo.blue, 1);
+        document->getADisplay()->getADisplayManager()->setFGColor(colorInfo.red, colorInfo.green, colorInfo.blue, 1);
     }
     else {
-        document->getDisplay()->getDisplayManager()->setFGColor(defaultWireColor[0], defaultWireColor[1], defaultWireColor[2], 1);
+        document->getADisplay()->getADisplayManager()->setFGColor(defaultWireColor[0], defaultWireColor[1], defaultWireColor[2], 1);
     }
 
     //displayManager->setLineStyle(tsp->ts_sofar & (TS_SOFAR_MINUS | TS_SOFAR_INTER));
-    document->getDisplay()->getDisplayManager()->drawVList(&vectorList);
-    document->getDisplay()->getDisplayManager()->endDList();     // end display list --------------
+    document->getADisplay()->getADisplayManager()->drawVList(&vectorList);
+    document->getADisplay()->getADisplayManager()->endDList();     // end display list --------------
 
-    objectIdDisplayListIdMap[objectId] = displayListId;
+    objectIdADisplayListIdMap[objectId] = displayListId;
 }
 
 
 
 void GeometryRenderer::refreshForVisibilityAndSolidChanges() {
-    visibleDisplayListIds.clear();
+    visibleADisplayListIds.clear();
     document->getObjectTree()->traverseSubTree(0, false,[this]
         (int objectId)
         {
             if (document->getObjectTree()->getObjectVisibility()[objectId] == ObjectTree::Invisible) return false;
             if (!document->getObjectTree()->getDrawableObjectIds().contains(objectId)) return true;
-            objectsToBeDisplayedIds.append(objectId);
+            objectsToBeADisplayedIds.append(objectId);
             return true;
         }
     );
 }
 
 void GeometryRenderer::clearSolidIfAvailable(int objectId) {
-    if (objectIdDisplayListIdMap.contains(objectId)){
-        document->getDisplay()->getDisplayManager()->freeDLists(objectIdDisplayListIdMap[objectId], 1);
-        objectIdDisplayListIdMap.remove(objectId);
+    if (objectIdADisplayListIdMap.contains(objectId)){
+        document->getADisplay()->getADisplayManager()->freeDLists(objectIdADisplayListIdMap[objectId], 1);
+        objectIdADisplayListIdMap.remove(objectId);
     }
 }
 

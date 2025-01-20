@@ -17,23 +17,23 @@
  * License along with this file; see the file named COPYING for more
  * information.
  */
-/** @file DisplayManager.cpp */
+/** @file ADisplayManager.cpp */
 
 #include <QMatrix4x4>
 #include <QScreen>
-#include "DisplayManager.h"
+#include "ADisplayManager.h"
 
 #define DM_SOLID_LINE 0
 #define DM_DASHED_LINE 1
 
-DisplayManager::DisplayManager(Display &display) : display(display)
+ADisplayManager::ADisplayManager(ADisplay &display) : display(display)
 {
   /* FIXME: these curiously crash on Mac */
     setFGColor(0,0,0, 1);
     glLineStipple(1, 0xCF33);
 }
 
-bool DisplayManager::DrawVListElementCallback::operator()(BRLCAD::VectorList::Element *element) {
+bool ADisplayManager::DrawVListElementCallback::operator()(BRLCAD::VectorList::Element *element) {
     const  float black[4] = {0.0, 0.0, 0.0, 0.0};
     if (!element) return true;
 
@@ -80,9 +80,9 @@ bool DisplayManager::DrawVListElementCallback::operator()(BRLCAD::VectorList::El
             glGetFloatv(GL_MODELVIEW_MATRIX, _m);
             QMatrix4x4 m(_m);
             QVector3D point(e->ReferencePoint().coordinates[0], e->ReferencePoint().coordinates[1], e->ReferencePoint().coordinates[2]);
-            QVector3D tlate = m.transposed() * point;
+            QVector3D tlate = m.transposed().map(point);
             //todo changes to the last few lines are not yet tested.
-            class Display;
+            class ADisplay;
             glPushMatrix();
             glLoadIdentity();
             glTranslated(tlate[0], tlate[1], tlate[2]);
@@ -233,11 +233,11 @@ bool DisplayManager::DrawVListElementCallback::operator()(BRLCAD::VectorList::El
     return true;
 }
 
-DisplayManager::DrawVListElementCallback::DrawVListElementCallback(const DisplayManager *displayManager,
+ADisplayManager::DrawVListElementCallback::DrawVListElementCallback(const ADisplayManager *displayManager,
                                                                    DrawVlistVars *vars) :
     displayManager(displayManager), vars(vars) {}
 
-void DisplayManager::drawVList(BRLCAD::VectorList *vectorList)
+void ADisplayManager::drawVList(BRLCAD::VectorList *vectorList)
 {
     GLfloat originalPointSize, originalLineWidth;
     glGetFloatv(GL_POINT_SIZE, &originalPointSize);
@@ -260,7 +260,7 @@ void DisplayManager::drawVList(BRLCAD::VectorList *vectorList)
 }
 
 
-void DisplayManager::setFGColor(float r, float g, float b, float transparency) {
+void ADisplayManager::setFGColor(float r, float g, float b, float transparency) {
     wireColor[0] = r;
     wireColor[1] = g;
     wireColor[2] = b;
@@ -297,7 +297,7 @@ void DisplayManager::setFGColor(float r, float g, float b, float transparency) {
 }
 
 
-void DisplayManager::setBGColor(float r, float g, float b) {
+void ADisplayManager::setBGColor(float r, float g, float b) {
     bgColor[0] = r;
     bgColor[1] = g;
     bgColor[2] = b;
@@ -310,7 +310,7 @@ void DisplayManager::setBGColor(float r, float g, float b) {
  * DM_SOLID_LINE=0
  * DM_DASHED_LINE=1
  */
-void DisplayManager::setLineStyle(int style) {
+void ADisplayManager::setLineStyle(int style) {
     if (style == DM_DASHED_LINE) {
         glEnable(GL_LINE_STIPPLE);
     }
@@ -319,7 +319,7 @@ void DisplayManager::setLineStyle(int style) {
     }
 }
 
-void DisplayManager::setLineWidth(int width)
+void ADisplayManager::setLineWidth(int width)
 {
     glLineWidth((GLfloat) width);
 }
@@ -331,7 +331,7 @@ void DisplayManager::setLineWidth(int width)
  * DM_SOLID_LINE=0
  * DM_DASHED_LINE=1
  */
-void DisplayManager::setLineAttr(int width, int style)
+void ADisplayManager::setLineAttr(int width, int style)
 {
     if (width>0) {
         glLineWidth((GLfloat) width);
@@ -346,16 +346,16 @@ void DisplayManager::setLineAttr(int width, int style)
 }
 
 /*
- * Displays a saved display list identified by `list`
+ * ADisplays a saved display list identified by `list`
  */
-void DisplayManager::drawDList(unsigned int list) {
+void ADisplayManager::drawDList(unsigned int list) {
     glCallList((GLuint) list);
 }
 
 /*
  * Generates `range` number of display lists and returns first display list's index
  */
-unsigned int DisplayManager::genDLists(size_t range)
+unsigned int ADisplayManager::genDLists(size_t range)
 {
     return glGenLists((GLsizei)range);
 }
@@ -364,7 +364,7 @@ unsigned int DisplayManager::genDLists(size_t range)
  * Supported subsequent opengl commands are compiled into the display list `list` rather than being rendered to the screen.
  * Should have called genDLists and generated the display list before calling this.
  */
-void DisplayManager::beginDList(unsigned int list)
+void ADisplayManager::beginDList(unsigned int list)
 {
     glNewList((GLuint)list, GL_COMPILE);
 }
@@ -372,7 +372,7 @@ void DisplayManager::beginDList(unsigned int list)
 /*
  * End of the display list initiated by beginDList.
  */
-void DisplayManager::endDList()
+void ADisplayManager::endDList()
 {
     glEndList();
 }
@@ -380,16 +380,16 @@ void DisplayManager::endDList()
 /*
  * End of the display list initiated by beginDList.
  */
-GLboolean DisplayManager::isDListValid(unsigned int list)
+GLboolean ADisplayManager::isDListValid(unsigned int list)
 {
     return glIsList(list);
 }
 
-void DisplayManager::freeDLists(unsigned int list, int range)
+void ADisplayManager::freeDLists(unsigned int list, int range)
 {
     glDeleteLists((GLuint)list, (GLsizei)range);
 }
-void DisplayManager::drawBegin()
+void ADisplayManager::drawBegin()
 {
     glClearColor(bgColor[0],bgColor[1],bgColor[2],1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -400,35 +400,35 @@ void DisplayManager::drawBegin()
 
 }
 
-void DisplayManager::saveState(){
+void ADisplayManager::saveState(){
     glPushAttrib(GL_ALL_ATTRIB_BITS);
 }
-void DisplayManager::restoreState(){
+void ADisplayManager::restoreState(){
     glPopAttrib();
 }
 
-void DisplayManager::loadMatrix(const GLfloat *m)
+void ADisplayManager::loadMatrix(const GLfloat *m)
 {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glLoadMatrixf(m);
 }
-void DisplayManager::loadPMatrix(const GLfloat *m)
+void ADisplayManager::loadPMatrix(const GLfloat *m)
 {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glLoadMatrixf(m);
 }
 
-void DisplayManager::setSuffix(const BRLCAD::VectorList& vectorList) {
+void ADisplayManager::setSuffix(const BRLCAD::VectorList& vectorList) {
     suffix = vectorList;
 }
 
-void DisplayManager::clearSuffix(void) {
+void ADisplayManager::clearSuffix(void) {
     suffix.Clear();
 }
 
-void DisplayManager::drawSuffix(void) {
+void ADisplayManager::drawSuffix(void) {
     setFGColor(1.0f, 1.0f, 0.0f, 1.0f);
     drawVList(&suffix);
 }

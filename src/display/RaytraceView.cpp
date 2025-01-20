@@ -31,6 +31,7 @@
 #include <cmath>
 
 #include <QPainter>
+#include <QMessageBox>
 
 #include "RaytraceView.h"
 #include <QBitmap>
@@ -173,17 +174,17 @@ void RaytraceView::raytrace() {
     );
 
     QMatrix4x4 transformation;
-    transformation.translate(document->getDisplay()->getCamera()->getEyePosition().x(),
-                             document->getDisplay()->getCamera()->getEyePosition().y(),
-                             document->getDisplay()->getCamera()->getEyePosition().z());
-    transformation.rotate(-document->getDisplay()->getCamera()->getAnglesAroundAxes().y(), 0., 1., 0.);
-    transformation.rotate(-document->getDisplay()->getCamera()->getAnglesAroundAxes().z(), 0., 0., 1.);
-    transformation.rotate(-document->getDisplay()->getCamera()->getAnglesAroundAxes().x(), 1., 0., 0.);
+    transformation.translate(document->getADisplay()->getCamera()->getEyePosition().x(),
+                             document->getADisplay()->getCamera()->getEyePosition().y(),
+                             document->getADisplay()->getCamera()->getEyePosition().z());
+    transformation.rotate(-document->getADisplay()->getCamera()->getAnglesAroundAxes().y(), 0., 1., 0.);
+    transformation.rotate(-document->getADisplay()->getCamera()->getAnglesAroundAxes().z(), 0., 0., 1.);
+    transformation.rotate(-document->getADisplay()->getCamera()->getAnglesAroundAxes().x(), 1., 0., 0.);
     transformation.translate(0, 0, 10000);
-    transformation.scale(document->getDisplay()->getCamera()->getVerticalSpan()/document->getDisplay()->getH());
-    transformation.translate(-document->getDisplay()->getW()/2.,-document->getDisplay()->getH()/2.);
+    transformation.scale(document->getADisplay()->getCamera()->getVerticalSpan()/document->getADisplay()->getH());
+    transformation.translate(-document->getADisplay()->getW()/2.,-document->getADisplay()->getH()/2.);
 
-    resize(document->getDisplay()->getW(),document->getDisplay()->getH());
+    resize(document->getADisplay()->getW(),document->getADisplay()->getH());
     UpdateTrafo(transformation);
     UpdateImage();
 

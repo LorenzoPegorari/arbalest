@@ -5,18 +5,18 @@
 #ifndef RT3_DOCUMENT_H
 #define RT3_DOCUMENT_H
 
-#include "Display.h"
+#include "ADisplay.h"
 #include "ObjectTree.h"
 #include "ObjectTreeWidget.h"
 #include "Properties.h"
 #include "GeometryRenderer.h"
-#include "DisplayGrid.h"
+#include "ADisplayGrid.h"
 #include <include/RaytraceView.h>
 
 class Properties;
-class Display;
+class ADisplay;
 class GeometryRenderer;
-class DisplayGrid;
+class ADisplayGrid;
 class RaytraceView;
 class ObjectTreeWidget;
 
@@ -24,7 +24,7 @@ class Document {
 private:
     QString *filePath = nullptr;
     BRLCAD::MemoryDatabase *database;
-    DisplayGrid *displayGrid;
+    ADisplayGrid *displayGrid;
     ObjectTreeWidget *objectTreeWidget;
     Properties *properties;
     const int documentId;
@@ -55,7 +55,7 @@ public:
         return database;
     }
 
-    Display* getDisplay();
+    ADisplay* getADisplay();
 
     ObjectTreeWidget* getObjectTreeWidget() const
     {
@@ -67,7 +67,7 @@ public:
 	    return properties;
     }
 
-    DisplayGrid *getDisplayGrid()  {
+    ADisplayGrid *getADisplayGrid()  {
         return displayGrid;
     }
 
